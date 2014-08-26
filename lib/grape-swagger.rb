@@ -105,16 +105,19 @@ module Grape
                 routes.reject! { |route, _value| "/#{route}/".index(parse_path(@@mount_path, nil) << '/') == 0 }
               end
 
+
+
               routes_array = routes.keys.map do |local_route|
                 next if routes[local_route].all?(&:route_hidden)
 
                 url_format  = '.{format}' unless @@hide_format
 
+                url_base    = parse_path(route.route_path.gsub('(.:format)', '').gsub('/swagger_doc', ''), route.route_version) if root_base_path
                 description = namespaces[local_route] && namespaces[local_route].options[:desc]
                 description ||= "Operations about #{local_route.pluralize}"
 
                 {
-                  path: "/#{local_route}#{url_format}",
+                  path: "#{url_base}/#{local_route}#{url_format}",
                   description: description
                 }
               end.compact
