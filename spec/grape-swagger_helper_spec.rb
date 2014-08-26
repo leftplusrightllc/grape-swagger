@@ -46,6 +46,23 @@ describe 'helpers' do
       ]
     end
 
+    it 'parses params with a nested hash as form for a POST' do
+      params = {
+        "user" => {:required=>true, :type=>"Hash"},
+        "user[email]" =>{:required=>true, :type=>"String", :desc=>"Email Address"},
+        "user[profile]" => {:required=>true, :type=>"Hash"},
+        "user[profile][first_name]" => {:required=>true, :type=>"String", :desc=>"First Name"},
+        "user[profile][last_name]" => {:required=>true, :type=>"String", :desc=>"Last Name"},
+        "user[profile][bio]" => {:required=>false, :type=>"String", :desc=>"Bio"}
+       }
+
+      path = '/coolness'
+      method = 'POST'
+      puts subject.parse_params(params, path, method).inspect
+
+      expect(subject.parse_params(params, path, method)).to eq [{:paramType=>"form", :name=>"user[email]", :description=>"Email Address", :type=>"string", :required=>true, :allowMultiple=>false}, {:paramType=>"form", :name=>"user[profile][first_name]", :description=>"First Name", :type=>"string", :required=>true, :allowMultiple=>false}, {:paramType=>"form", :name=>"user[profile][last_name]", :description=>"Last Name", :type=>"string", :required=>true, :allowMultiple=>false}, {:paramType=>"form", :name=>"user[profile][bio]", :description=>"Bio", :type=>"string", :required=>false, :allowMultiple=>false}]
+    end
+
     it 'parses file param' do
       params = {
         rack: {

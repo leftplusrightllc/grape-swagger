@@ -229,8 +229,11 @@ module Grape
             def parse_params(params, path, method)
               params ||= []
               params.map do |param, value|
-                value[:type] = 'File' if value.is_a?(Hash) && ['Rack::Multipart::UploadedFile', 'Hash'].include?(value[:type])
+                value[:type] = 'File' if value.is_a?(Hash) && ['Rack::Multipart::UploadedFile', 'Hash'].include?(value[:type]) && value.has_key?(:datafile)
                 items = {}
+
+                next if value.is_a?(Hash) && value[:type] == 'Hash'
+
 
                 raw_data_type = value.is_a?(Hash) ? (value[:type] || 'string').to_s : 'string'
                 data_type     = case raw_data_type
@@ -288,7 +291,7 @@ module Grape
                 parsed_params.merge!(defaultValue: default_value) if default_value
                 parsed_params.merge!(enum: enum_values) if enum_values
                 parsed_params
-              end
+              end.compact
             end
 
             def content_types_for(target_class)
@@ -422,7 +425,7 @@ module Grape
             end
 
             def is_primitive?(type)
-              %w(integer long float double string byte boolean date dateTime).include? type
+              %w(integer long float double string byte boolean date dateTime Hash).include? type
             end
 
             def generate_typeref(type)
