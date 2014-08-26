@@ -112,7 +112,7 @@ module Grape
 
                 url_format  = '.{format}' unless @@hide_format
 
-                url_base    = parse_path(route.route_path.gsub('(.:format)', '').gsub('/swagger_doc', ''), route.route_version) if root_base_path
+                url_base    = parse_path(route.route_path.gsub('(.:format)', ''), route.route_version) if root_base_path
                 description = namespaces[local_route] && namespaces[local_route].options[:desc]
                 description ||= "Operations about #{local_route.pluralize}"
 
@@ -130,6 +130,8 @@ module Grape
                 info:           parse_info(extra_info)
               }
 
+              basePath                = parse_base_path(base_path, request)
+              output[:basePath]       = basePath        if basePath && basePath.size > 0 && root_base_path != false
               output[:authorizations] = authorizations unless authorizations.nil? || authorizations.empty?
 
               output
